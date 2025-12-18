@@ -11,6 +11,7 @@ import (
 	"os"
 	"runtime"
 	"sync"
+	"time"
 )
 
 // Pixel représente une valeur RGB
@@ -50,6 +51,60 @@ func extractPixels(m image.Image, width, height int) [][]Pixel {
 			}
 		}
 	}
+	return rgbMatrix
+}
+
+// extractPixelsParallel convertit une image en matrice de pixels RGB (version parallélisée)
+func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
+	// Initialiser la matrice avec allocation sécurisée
+	rgbMatrix := make([][]Pixel, height)
+	for y := 0; y < height; y++ {
+		rgbMatrix[y] = make([]Pixel, width)
+	}
+
+	// Déterminer le nombre de workers
+	numWorkers := runtime.NumCPU()
+	chunkSize := height / numWorkers
+	if chunkSize == 0 {
+		chunkSize = 1
+	}
+
+	// WaitGroup pour synchronisation
+	var wg sync.WaitGroup
+
+	// Créer et lancer les workers
+	for i := 0; i < numWorkers; i++ {
+		startY := i * chunkSize
+		endY := startY + chunkSize
+		if i == numWorkers-1 {
+			endY = height
+		}
+
+		wg.Add(1)
+		go func(start, end int) {
+			defer wg.Done()
+
+			// Boucle sur les lignes assignées à ce worker
+			for y := start; y < end; y++ {
+				// Boucle sur tous les pixels de la ligne
+				for x := 0; x < width; x++ {
+					// Lire le pixel depuis l'image source (thread-safe)
+					r, g, b, _ := m.At(x, y).RGBA()
+
+					// Écrire dans sa portion de matrice (pas de race condition)
+					rgbMatrix[y][x] = Pixel{
+						R: uint16(r),
+						G: uint16(g),
+						B: uint16(b),
+					}
+				}
+			}
+		}(startY, endY)
+	}
+
+	// Attendre que tous les workers terminent
+	wg.Wait()
+
 	return rgbMatrix
 }
 
@@ -124,11 +179,43 @@ func main() {
 	bounds := m.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
 	fmt.Printf("Dimensions : %dx%d\n", width, height)
-	// Extraire les pixels
-	rgbMatrix := extractPixels(m, width, height)
+	fmt.Printf("Nombre de cœurs : %d\n\n", runtime.NumCPU())
+
+	// ============================================
+	// Test 1 : extractPixels (VERSION SÉQUENTIELLE)
+	// ============================================
+	fmt.Println("=== TEST extractPixels (SÉQUENTIEL) ===")
+	start1 := time.Now()
+	rgbMatrix1 := extractPixels(m, width, height)
+	duration1 := time.Since(start1)
+	fmt.Printf("Temps : %v\n\n", duration1)
+
+	// ============================================
+	// Test 2 : extractPixelsParallel (VERSION PARALLÈLE)
+	// ============================================
+	fmt.Println("=== TEST extractPixelsParallel (PARALLÈLE) ===")
+	start2 := time.Now()
+	rgbMatrix2 := extractPixelsParallel(m, width, height)
+	duration2 := time.Since(start2)
+	fmt.Printf("Temps : %v\n\n", duration2)
+
+	// ============================================
+	// Comparaison
+	// ============================================
+	fmt.Println("=== COMPARAISON ===")
+	speedup := float64(duration1) / float64(duration2)
+	savings := (1 - float64(duration2)/float64(duration1)) * 100
+	fmt.Printf("Speedup : %.2fx\n", speedup)
+	fmt.Printf("Gain de temps : %.2f%%\n", savings)
+	fmt.Printf("Différence : %v\n\n", duration1-duration2)
+
+	// Utiliser la version parallèle pour le résultat final
+	rgbMatrix := rgbMatrix2
+	_ = rgbMatrix1 // éviter l'avertissement "unused"
 	rgbMatrix = blackWhite(rgbMatrix, width, height)
 	// Convertir en image RGBA
 	out := pixelsToImage(rgbMatrix, width, height)
 	// Sauvegarder
-	saveImage(out, "out2.png")
+	saveImage(out, "out.png")
+	fmt.Println("Image sauvegardée : out.png")
 }
