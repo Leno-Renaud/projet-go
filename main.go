@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"time"
 )
@@ -56,4 +57,39 @@ func main() {
 	out := pixelsToImage(rgbMatrix)
 	saveImage(out, "out.png")
 	fmt.Println("Image sauvegardée : out.png")
+
+	// ============================================
+	// Effet "Halo" : transformer une image source pour qu'elle ressemble à une image cible
+	// ============================================
+	fmt.Println("\n=== EFFET HALO ===")
+	srcImg := loadImage("test101.png")
+	tgtImg := loadImage("test100.jpg")
+
+	// Réutiliser les variables `width` et `height` déjà déclarées plus haut
+	width = srcImg.Bounds().Dx()
+	height = srcImg.Bounds().Dy()
+
+	// ⚠️ Assure-toi que les deux images ont la même taille
+	tgtWidth := tgtImg.Bounds().Dx()
+	tgtHeight := tgtImg.Bounds().Dy()
+
+	if width != tgtWidth || height != tgtHeight {
+		log.Fatal("Les images source et cible doivent avoir la même taille")
+	}
+
+	srcPixels := extractPixels(srcImg, width, height)
+	tgtPixels := extractPixels(tgtImg, width, height)
+
+	factor := 8
+
+	result := transformToTarget(
+		srcPixels,
+		tgtPixels,
+		width,
+		height,
+		factor,
+	)
+
+	out = pixelsToImage(result)
+	saveImage(out, "result.png")
 }
