@@ -15,6 +15,15 @@ type Pixel struct {
 	R, G, B uint16
 }
 
+// Block représente un bloc `factor x factor` extrait d'une image
+// X, Y sont les coordonnées du coin supérieur gauche du bloc dans l'image
+// Pixels contient les lignes de pixels du bloc et Avg est la couleur moyenne
+type Block struct {
+	X, Y   int
+	Pixels [][]Pixel
+	Avg    Pixel
+}
+
 // loadImage charge une image depuis un fichier
 func loadImage(filename string) image.Image {
 	reader, err := os.Open(filename)
@@ -152,3 +161,125 @@ func downscalePixels(rgbMatrix [][]Pixel, width, height, factor int) [][]Pixel {
 
 	return result
 }
+
+
+
+func colorDistance(a, b Pixel) float64 {
+	dr := float64(a.R) - float64(b.R)
+	dg := float64(a.G) - float64(b.G)
+	db := float64(a.B) - float64(b.B)
+	return dr*dr + dg*dg + db*db
+}
+func averageBlock(pixels [][]Pixel) Pixel {
+	var r, g, b uint64
+	count := 0
+
+	for _, row := range pixels {
+		for _, p := range row {
+			r += uint64(p.R)
+			g += uint64(p.G)
+			b += uint64(p.B)
+			count++
+		}
+	}
+
+	return Pixel{
+		R: uint16(r / uint64(count)),
+		G: uint16(g / uint64(count)),
+		B: uint16(b / uint64(count)),
+	}
+}
+func splitIntoBlocks(img [][]Pixel, width, height, factor int) []Block {
+	var blocks []Block
+
+	for by := 0; by < height; by += factor {
+		for bx := 0; bx < width; bx += factor {
+
+			maxY := by + factor
+			if maxY > height {
+				maxY = height
+			}
+			maxX := bx + factor
+			if maxX > width {
+				maxX = width
+			}
+
+			blockPixels := make([][]Pixel, maxY-by)
+			for y := by; y < maxY; y++ {
+				blockPixels[y-by] = img[y][bx:maxX]
+			}
+
+			blocks = append(blocks, Block{
+				X:      bx,
+				Y:      by,
+				Pixels: blockPixels,
+				Avg:    averageBlock(blockPixels),
+			})
+		}
+	}
+	return blocks
+}
+func matchBlocks(source, target []Block) []Block {
+	result := make([]Block, len(target))
+
+	for i, tb := range target {
+		best := source[0]
+		bestDist := colorDistance(tb.Avg, best.Avg)
+
+		for _, sb := range source[1:] {
+			d := colorDistance(tb.Avg, sb.Avg)
+			if d < bestDist {
+				bestDist = d
+				best = sb
+			}
+		}
+
+		// placer le bloc source à la position du bloc cible
+		best.X = tb.X
+		best.Y = tb.Y
+		result[i] = best
+	}
+
+	return result
+}
+func reconstructImage(blocks []Block, width, height int) [][]Pixel {
+	result := make([][]Pixel, height)
+	for y := 0; y < height; y++ {
+		result[y] = make([]Pixel, width)
+	}
+
+	// When a source block (placed at a target position) extends beyond image
+	// bounds (happens when dimensions are not divisible by factor), clip writes
+	// to avoid panics.
+	for _, b := range blocks {
+		for by := range b.Pixels {
+			ay := b.Y + by
+			if ay < 0 || ay >= height {
+				continue
+			}
+			for bx := range b.Pixels[by] {
+				ax := b.X + bx
+				if ax < 0 || ax >= width {
+					continue
+				}
+				result[ay][ax] = b.Pixels[by][bx]
+			}
+		}
+	}
+
+	return result
+}
+func transformToTarget(
+	source [][]Pixel,
+	target [][]Pixel,
+	width, height, factor int,
+) [][]Pixel {
+
+	srcBlocks := splitIntoBlocks(source, width, height, factor)
+	tgtBlocks := splitIntoBlocks(target, width, height, factor)
+
+	mapped := matchBlocks(srcBlocks, tgtBlocks)
+
+	return reconstructImage(mapped, width, height)
+}
+
