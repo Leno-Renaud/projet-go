@@ -9,6 +9,8 @@ import (
 	_ "image/png" // Indispensable pour décoder le PNG (init function)
 	"log"
 	"os"
+	"runtime"
+	"sync"
 )
 
 // Pixel représente une valeur RGB
@@ -52,20 +54,39 @@ func extractPixels(m image.Image, width, height int) [][]Pixel {
 }
 
 func blackWhite(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			p := rgbMatrix[y][x]
-			gray := uint16(0.299*float64(p.R) + 0.587*float64(p.G) + 0.114*float64(p.B))
-			rgbMatrix[y][x] = Pixel{R: gray, G: gray, B: gray}
-		}
+	numGoroutines := runtime.NumCPU()
+	rowsPerGoroutine := (height + numGoroutines - 1) / numGoroutines
+
+	var wg sync.WaitGroup
+	wg.Add(numGoroutines)
+
+	for g := 0; g < numGoroutines; g++ {
+		go func(goroutineID int) {
+			defer wg.Done()
+
+			startRow := goroutineID * rowsPerGoroutine
+			endRow := (goroutineID + 1) * rowsPerGoroutine
+			if endRow > height {
+				endRow = height
+			}
+
+			for y := startRow; y < endRow; y++ {
+				for x := 0; x < width; x++ {
+					p := rgbMatrix[y][x]
+					gray := uint16(0.299*float64(p.R) + 0.587*float64(p.G) + 0.114*float64(p.B))
+					rgbMatrix[y][x] = Pixel{R: gray, G: gray, B: gray}
+				}
+			}
+		}(g)
 	}
+
+	wg.Wait()
 	return rgbMatrix
 }
 
 // pixelsToImage convertit une matrice de pixels en image RGBA
 func pixelsToImage(rgbMatrix [][]Pixel, width, height int) *image.RGBA {
 	out := image.NewRGBA(image.Rect(0, 0, width, height))
-
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			p := rgbMatrix[y][x]
