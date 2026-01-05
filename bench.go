@@ -38,7 +38,7 @@ func CompareExtractPixels(img image.Image) {
 func CompareBlackWhite(rgbMatrix [][]Pixel, width, height int) {
 	fmt.Println("=== TEST blackWhite (SÉQUENTIEL) ===")
 	start1 := time.Now()
-	rgbMatrix1 := blackWhiteSeq(rgbMatrix, width, height)
+	rgbMatrix1 := blackWhite(rgbMatrix, width, height)
 	duration1 := time.Since(start1)
 	fmt.Printf("Temps : %v\n\n", duration1)
 
