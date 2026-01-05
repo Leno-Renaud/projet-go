@@ -151,35 +151,3 @@ func downscalePixelsParallel(rgbMatrix [][]Pixel, width, height, factor int) [][
 	wg.Wait()
 	return result
 }
-
-func matchBlocks(source, target []Block) []Block {
-	result := make([]Block, len(target))
-	var wg sync.WaitGroup
-
-	for i := range target {
-		wg.Add(1)
-
-		go func(i int) {
-			defer wg.Done()
-
-			tb := target[i]
-			best := source[0]
-			bestDist := colorDistance(tb.Avg, best.Avg)
-
-			for _, sb := range source[1:] {
-				d := colorDistance(tb.Avg, sb.Avg)
-				if d < bestDist {
-					bestDist = d
-					best = sb
-				}
-			}
-
-			best.X = tb.X
-			best.Y = tb.Y
-			result[i] = best
-		}(i)
-	}
-
-	wg.Wait()
-	return result
-}
