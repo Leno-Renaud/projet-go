@@ -50,8 +50,8 @@ func extractPixels(m image.Image, width, height int) [][]Pixel {
 	return rgbMatrix
 }
 
-// blackWhiteSeq convertit la matrice en niveaux de gris (séquentiel, in-place)
-func blackWhiteSeq(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
+// blackWhite convertit la matrice en niveaux de gris (séquentiel, in-place)
+func blackWhite(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			p := rgbMatrix[y][x]
