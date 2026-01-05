@@ -51,6 +51,15 @@ func extractPixels(m image.Image, width, height int) [][]Pixel {
 	return rgbMatrix
 }
 
+// copyMatrix crée une copie profonde de la matrice
+func copyMatrix(src [][]Pixel) [][]Pixel {
+	dst := make([][]Pixel, len(src))
+	for i := range src {
+		dst[i] = append([]Pixel{}, src[i]...)
+	}
+	return dst
+}
+
 // blackWhite convertit la matrice en niveaux de gris (séquentiel, in-place)
 func blackWhite(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
 	for y := 0; y < height; y++ {
