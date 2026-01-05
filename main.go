@@ -7,8 +7,8 @@ import (
 
 func main() {
 	// Charger l'image
-	image := loadImage("asiats.jpg")
-	image2 := loadImage("carosse.jpg")
+	image := loadImage("images_sources/asiats_500x500.jpg")
+	image2 := loadImage("images_sources/carosse_500x500.jpg")
 	// Récupérer les dimensions
 	bounds := image.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
@@ -43,4 +43,5 @@ func main() {
 	saveImage(imageTraitementBW, "output/blackWhite.jpg")
 	saveImage(imageTraitementDownscale, "output/downscale.jpg")
 	saveImage(imageTraitementRemap, "output/remap.jpg")
+	fmt.Println("=== Traitements effectués avec succès ===")
 }

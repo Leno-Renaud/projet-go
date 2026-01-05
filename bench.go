@@ -55,7 +55,7 @@ func CompareBlackWhite(rgbMatrix [][]Pixel, width, height int) {
 	fmt.Printf("Gain de temps : %.2f%%\n", savings)
 	fmt.Printf("Différence : %v\n\n", duration1-duration2)
 
-	_ = rgbMatrix1 // éviter les avertissements "unused"
+	_ = rgbMatrix1
 	_ = rgbMatrix2
 }
 
@@ -79,18 +79,18 @@ func CompareDownscalePixels(rgbMatrix [][]Pixel, width, height int) {
 	fmt.Printf("Gain de temps : %.2f%%\n", savings)
 	fmt.Printf("Différence : %v\n\n", duration1-duration2)
 
-	_ = rgbMatrix1 // éviter les avertissements "unused"
+	_ = rgbMatrix1
 	_ = rgbMatrix2
 }
 
 func CompareRemapPixels(sourceMatrix [][]Pixel, destinationMatrix [][]Pixel, levels int) {
-	fmt.Println("=== TEST downscalePixels (SÉQUENTIEL) ===")
+	fmt.Println("=== TEST remapPixels (SÉQUENTIEL) ===")
 	start1 := time.Now()
 	rgbMatrix1 := remapPixels(sourceMatrix, destinationMatrix, levels)
 	duration1 := time.Since(start1)
 	fmt.Printf("Temps : %v\n\n", duration1)
 
-	fmt.Println("=== TEST downscalePixelsParallel (PARALLÈLE) ===")
+	fmt.Println("=== TEST remapPixels (PARALLÈLE) ===")
 	start2 := time.Now()
 	rgbMatrix2 := remapPixelsParallel(sourceMatrix, destinationMatrix, levels)
 	duration2 := time.Since(start2)
@@ -103,6 +103,6 @@ func CompareRemapPixels(sourceMatrix [][]Pixel, destinationMatrix [][]Pixel, lev
 	fmt.Printf("Gain de temps : %.2f%%\n", savings)
 	fmt.Printf("Différence : %v\n\n", duration1-duration2)
 
-	_ = rgbMatrix1 // éviter les avertissements "unused"
+	_ = rgbMatrix1
 	_ = rgbMatrix2
 }
