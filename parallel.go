@@ -14,8 +14,19 @@ func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
 		rgbMatrix[y] = make([]Pixel, width)
 	}
 
+	// Guard against empty images
+	if height == 0 || width == 0 {
+		return rgbMatrix
+	}
+
+	// Don't spawn more workers than rows: clamp to height
 	numWorkers := runtime.NumCPU()
+	if numWorkers > height {
+		numWorkers = height
+	}
+
 	chunkSize := height / numWorkers
+	// Ensure at least one row per worker
 	if chunkSize == 0 {
 		chunkSize = 1
 	}
@@ -24,6 +35,10 @@ func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
 	for i := 0; i < numWorkers; i++ {
 		startY := i * chunkSize
 		endY := startY + chunkSize
+		// Clamp endY to avoid out of range when chunk distribution doesn't cover all rows
+		if endY > height {
+			endY = height
+		}
 		if i == numWorkers-1 {
 			endY = height
 		}
@@ -46,7 +61,19 @@ func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
 
 // blackWhiteParallel convertit la matrice en niveaux de gris (parallèle)
 func blackWhiteParallel(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
+	// Guard against empty input
+	if height == 0 || width == 0 {
+		return rgbMatrix
+	}
+
 	numGoroutines := runtime.NumCPU()
+	if numGoroutines > height {
+		numGoroutines = height
+	}
+	if numGoroutines == 0 {
+		return rgbMatrix
+	}
+
 	rowsPerGoroutine := (height + numGoroutines - 1) / numGoroutines
 
 	var wg sync.WaitGroup
@@ -91,7 +118,18 @@ func downscalePixelsParallel(rgbMatrix [][]Pixel, width, height, factor int) [][
 	}
 
 	// Diviser le travail par lignes
+	if height == 0 || width == 0 {
+		return result
+	}
+
 	numGoroutines := runtime.NumCPU()
+	if numGoroutines > height {
+		numGoroutines = height
+	}
+	if numGoroutines == 0 {
+		return result
+	}
+
 	rowsPerGoroutine := (height + numGoroutines - 1) / numGoroutines
 
 	var wg sync.WaitGroup
@@ -191,6 +229,13 @@ func remapPixelsParallel(src [][]Pixel, target [][]Pixel, levels int) [][]Pixel 
 
 	var mu sync.Mutex // protects access to bins and popPixel
 	workers := runtime.NumCPU()
+	// no need to start more workers than positions
+	if workers > len(positions) {
+		workers = len(positions)
+	}
+	if workers == 0 {
+		return out
+	}
 	var wg sync.WaitGroup
 	wg.Add(workers)
 
