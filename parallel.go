@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// extractPixelsParallel convertit une image en matrice de pixels RGB (version parallélisée)
+// extractPixelsParallel convertit une image en matrice de pixels RGB (parallèle)
 func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
 	rgbMatrix := make([][]Pixel, height)
 	for y := 0; y < height; y++ {
@@ -44,7 +44,7 @@ func extractPixelsParallel(m image.Image, width, height int) [][]Pixel {
 	return rgbMatrix
 }
 
-// blackWhiteParallel convertit la matrice en niveaux de gris (parallèle, in-place)
+// blackWhiteParallel convertit la matrice en niveaux de gris (parallèle)
 func blackWhiteParallel(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
 	numGoroutines := runtime.NumCPU()
 	rowsPerGoroutine := (height + numGoroutines - 1) / numGoroutines
@@ -76,7 +76,7 @@ func blackWhiteParallel(rgbMatrix [][]Pixel, width, height int) [][]Pixel {
 	return rgbMatrix
 }
 
-// downscalePixels réduit la définition sans changer la taille (pixelisation)
+// downscalePixels réduit la définition sans changer la taille (parallèle)
 func downscalePixelsParallel(rgbMatrix [][]Pixel, width, height, factor int) [][]Pixel {
 	if factor <= 1 {
 		return rgbMatrix
@@ -153,8 +153,7 @@ func downscalePixelsParallel(rgbMatrix [][]Pixel, width, height, factor int) [][
 	return result
 }
 
-// remapPixels (parallèle) rearranges source pixels to match the target color distribution.
-// It keeps the same signature as the sequential version so existing callers need no change.
+// remapPixels part d'une matrice de pixel source et reconstitue une image target
 func remapPixelsParallel(src [][]Pixel, target [][]Pixel, levels int) [][]Pixel {
 	if len(src) == 0 || len(target) == 0 || len(src) != len(target) || len(src[0]) != len(target[0]) {
 		return nil
