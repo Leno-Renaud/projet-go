@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-func server() {
+func main() {
 	// Charger l'image
 	image := loadImage("images_sources/asiats_500x500.jpg")
 	image2 := loadImage("images_sources/carosse_500x500.jpg")
@@ -44,8 +44,4 @@ func server() {
 	saveImage(imageTraitementDownscale, "output/downscale.jpg")
 	saveImage(imageTraitementRemap, "output/remap.jpg")
 	fmt.Println("=== Traitements effectués avec succès ===")
-}
-
-func main() {
-	server()
 }
