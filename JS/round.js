@@ -47,11 +47,15 @@ export default class Round {
   }
 
   async play(roundNumber) {
+    // reset état round
+    this.roundOver = false;
+    this.flip7Player = null;
+
     this.players.forEach(p => {
       p.resetRound();
-      // Historique des cartes piochées ce round
       p.drawnCards = [];
     });
+
     this.logger.startRound(roundNumber, this.players);
     this.finished = false;
     this.flip7Winner = null;
@@ -59,10 +63,13 @@ export default class Round {
     // distribution initiale
     for (const p of this.players) {
       await this.drawCard(p);
+      if (this.roundOver) break;
     }
 
     while (!this.finished) {
       for (const p of this.players.filter(x => x.active && !x.stayed)) {
+        if (this.roundOver) break;
+
         console.log(`\n${p.name} a pioché:`, p.drawnCards.map(c => this.formatCard(c)).join(", "));
 
         let choice = null;
@@ -88,12 +95,13 @@ export default class Round {
       if (!activeLeft) break;
     }
 
-    // scoring
-    for (const p of this.players) {
-      const score = p.scoreRound();
-      p.totalScore += score;
-      console.log(`${p.name} gagne ${score} (total ${p.totalScore})`);
+    if (this.flip7Player) {
+      console.log(`${this.flip7Player.name} a fait FLIP 7 !`);
+      this.logger.log({ type: "flip7", player: this.flip7Player.name });
     }
+
+    // scoring UNE SEULE FOIS, fin de round
+    this.scoreRound();
 
     this.logger.endRound(this.players);
   }
@@ -103,7 +111,19 @@ export default class Round {
     return card.value !== undefined ? `${card.type}(${card.value})` : `${card.type}`;
   }
 
+  scoreRound() {
+    for (const p of this.players) {
+      const score = p.scoreRound();
+      p.totalScore += score;
+
+      console.log(`${p.name} gagne ${score} (total ${p.totalScore})`);
+      this.logger.log({ type: "roundScore", player: p.name, score, totalScore: p.totalScore });
+    }
+  }
+
   async drawCard(player) {
+    if (this.roundOver) return;
+
     const card = this.deck.draw();
     this.logger.log({ type: "draw", player: player.name, card });
 
@@ -113,11 +133,10 @@ export default class Round {
     if (!player.drawnCards) player.drawnCards = [];
     player.drawnCards.push(card);
 
-    // Affiche la carte tirée dans le terminal
     console.log(`${player.name} pioche: ${this.formatCard(card)}`);
 
     switch (card.type) {
-      case CARD_TYPES.NUMBER:
+      case CARD_TYPES.NUMBER: {
         if (player.hasDuplicate(card.value)) {
           if (player.secondChance) {
             player.secondChance = false;
@@ -148,30 +167,38 @@ export default class Round {
           }
         }
         break;
+      }
 
-      case CARD_TYPES.FREEZE:
-        // Carte à distribuer: on la "joue" et on la retire de l'affichage du joueur qui l'a piochée.
-        player.drawnCards.pop();
-        {
-          const target = await this.chooseTarget({ fromPlayer: player, effectLabel: "FREEZE", allowSelf: false });
-          this.logger.log({ type: "effect", effect: "freeze", from: player.name, to: target.name });
-          console.log(`${player.name} joue FREEZE sur ${target.name}`);
-          target.frozen = true;
-          target.active = false;
+      case CARD_TYPES.FREEZE: {
+        const activePlayers = this.players.filter(p => p.active && p !== player);
+        
+        if (activePlayers.length === 0) {
+          console.log("Aucun autre joueur actif !");
+          break;
         }
+
+        console.log("\nJoueurs actifs disponibles :");
+        activePlayers.forEach((p, index) => {
+          console.log(`${index + 1}. ${p.name}`);
+        });
+
+        let selectedIndex = -1;
+        while (selectedIndex < 0 || selectedIndex >= activePlayers.length) {
+          const input = await ask(`${player.name}, choisis un joueur (1-${activePlayers.length}) : `);
+          selectedIndex = parseInt(input) - 1;
+        }
+
+        const frozenPlayer = activePlayers[selectedIndex];
+        frozenPlayer.stayed = true;
+        console.log(`${frozenPlayer.name} finit son tour et marque ses points !`);
+        this.logger.log({ type: "freeze", player: player.name, targetPlayer: frozenPlayer.name });
         break;
+      }
 
       case CARD_TYPES.FLIP_THREE:
-        // Carte à distribuer: on la "joue" sur un joueur cible.
-        player.drawnCards.pop();
-        {
-          const target = await this.chooseTarget({ fromPlayer: player, effectLabel: "FLIP3", allowSelf: false });
-          this.logger.log({ type: "effect", effect: "flip_three", from: player.name, to: target.name });
-          console.log(`${player.name} joue FLIP3 sur ${target.name}`);
-          for (let i = 0; i < 3; i++) {
-            if (!target.active || this.finished) break;
-            await this.drawCard(target);
-          }
+        for (let i = 0; i < 3; i++) {
+          if (this.roundOver) break;
+          await this.drawCard(player);
         }
         break;
 
