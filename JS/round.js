@@ -159,48 +159,51 @@ export default class Round {
           player.addNumber(card.value);
 
           if (player.numbers.length === 7) {
-            player.stayed = true; // encaissement automatique
+            console.log(`\n🎯 ${player.name} a fait FLIP 7 !`);
+            console.log("Tous les joueurs actifs marquent leurs points !");
+            
+            // Tous les joueurs actifs restent et marquent leurs points
+            for (const p of this.players) {
+              if (p.active) {
+                p.stayed = true;
+              }
+            }
+            
             this.finished = true;
             this.flip7Winner = player;
             this.logger.log({ type: "flip7", player: player.name });
-            console.log(`${player.name} a fait FLIP 7 !`);
           }
         }
         break;
       }
 
       case CARD_TYPES.FREEZE: {
-        const activePlayers = this.players.filter(p => p.active && p !== player);
-        
-        if (activePlayers.length === 0) {
-          console.log("Aucun autre joueur actif !");
-          break;
-        }
-
-        console.log("\nJoueurs actifs disponibles :");
-        activePlayers.forEach((p, index) => {
-          console.log(`${index + 1}. ${p.name}`);
+        const frozenPlayer = await this.chooseTarget({
+          fromPlayer: player,
+          effectLabel: "FREEZE (finir le tour)",
+          allowSelf: true
         });
-
-        let selectedIndex = -1;
-        while (selectedIndex < 0 || selectedIndex >= activePlayers.length) {
-          const input = await ask(`${player.name}, choisis un joueur (1-${activePlayers.length}) : `);
-          selectedIndex = parseInt(input) - 1;
-        }
-
-        const frozenPlayer = activePlayers[selectedIndex];
+        
         frozenPlayer.stayed = true;
         console.log(`${frozenPlayer.name} finit son tour et marque ses points !`);
         this.logger.log({ type: "freeze", player: player.name, targetPlayer: frozenPlayer.name });
         break;
       }
 
-      case CARD_TYPES.FLIP_THREE:
+      case CARD_TYPES.FLIP_THREE: {
+        const target = await this.chooseTarget({
+          fromPlayer: player,
+          effectLabel: "FLIP_THREE (3 cartes)",
+          allowSelf: true
+        });
+        
+        console.log(`${target.name} va recevoir 3 cartes...`);
         for (let i = 0; i < 3; i++) {
-          if (this.roundOver) break;
-          await this.drawCard(player);
+          if (this.finished) break;
+          await this.drawCard(target);
         }
         break;
+      }
 
       case CARD_TYPES.SECOND_CHANCE:
         player.secondChance = true;

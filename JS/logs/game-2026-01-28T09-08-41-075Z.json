@@ -1,0 +1,210 @@
+{
+  "rounds": [
+    {
+      "round": 1,
+      "players": [
+        "a",
+        "b",
+        "c"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "a",
+          "card": {
+            "type": "number",
+            "value": 5
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "number",
+            "value": 7
+          }
+        },
+        {
+          "type": "draw",
+          "player": "a",
+          "card": {
+            "type": "number",
+            "value": 0
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "bonus",
+            "value": 10
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "number",
+            "value": 8
+          }
+        },
+        {
+          "type": "draw",
+          "player": "a",
+          "card": {
+            "type": "number",
+            "value": 5
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "number",
+            "value": 6
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "number",
+            "value": 4
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "number",
+            "value": 2
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "number",
+            "value": 8
+          }
+        },
+        {
+          "type": "roundScore",
+          "player": "a",
+          "score": 0,
+          "totalScore": 0
+        },
+        {
+          "type": "roundScore",
+          "player": "b",
+          "score": 0,
+          "totalScore": 0
+        },
+        {
+          "type": "roundScore",
+          "player": "c",
+          "score": 0,
+          "totalScore": 0
+        }
+      ],
+      "scores": {
+        "a": 0,
+        "b": 0,
+        "c": 0
+      }
+    },
+    {
+      "round": 2,
+      "players": [
+        "a",
+        "b",
+        "c"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "a",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        },
+        {
+          "type": "draw",
+          "player": "b",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "c",
+          "card": {
+            "type": "freeze"
+          }
+        },
+        {
+          "type": "freeze",
+          "player": "c",
+          "targetPlayer": "b"
+        },
+        {
+          "type": "stay",
+          "player": "a"
+        },
+        {
+          "type": "stay",
+          "player": "c"
+        },
+        {
+          "type": "roundScore",
+          "player": "a",
+          "score": 11,
+          "totalScore": 11
+        },
+        {
+          "type": "roundScore",
+          "player": "b",
+          "score": 12,
+          "totalScore": 12
+        },
+        {
+          "type": "roundScore",
+          "player": "c",
+          "score": 0,
+          "totalScore": 0
+        }
+      ],
+      "scores": {
+        "a": 11,
+        "b": 12,
+        "c": 0
+      }
+    }
+  ]
+}
