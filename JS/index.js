@@ -3,7 +3,6 @@ import Game from "./game.js";
 import { ask, closePrompt } from "./prompt.js";
 
 async function askInt(label, { min = 1, max = 100 } = {}) {
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const raw = await ask(label);
     const n = Number(raw);
@@ -13,7 +12,6 @@ async function askInt(label, { min = 1, max = 100 } = {}) {
 }
 
 async function askNonEmpty(label) {
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const s = await ask(label);
     if (s.length > 0) return s;

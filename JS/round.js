@@ -33,7 +33,6 @@ export default class Round {
       console.log(`  ${i + 1}) ${p.name}${flags ? ` (${flags})` : ""}`);
     });
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const raw = await ask("Cible (numéro ou nom) : ");
       const byNum = Number(raw);
@@ -53,7 +52,6 @@ export default class Round {
     console.log(`Choisir une cible pour ${label}:`);
     targets.forEach((p, i) => console.log(`  ${i + 1}) ${p.name}`));
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const raw = await ask("Cible (numéro ou nom) : ");
       const byNum = Number(raw);
@@ -115,9 +113,8 @@ export default class Round {
       if (!activeLeft) break;
     }
 
-    // flip7 est déjà loggé/affiché au moment où il arrive.
 
-    // scoring UNE SEULE FOIS, fin de round
+    // scoring, fin de round
     this.scoreRound();
 
     this.logger.endRound(this.players);
@@ -146,7 +143,7 @@ export default class Round {
 
     if (!card) return;
 
-    // Stocke la carte dans l'historique du joueur (cartes "gardées" pour l'affichage)
+    // Stocke la carte dans l'historique du joueur 
     if (!player.drawnCards) player.drawnCards = [];
     player.drawnCards.push(card);
 
@@ -157,7 +154,7 @@ export default class Round {
         if (player.hasDuplicate(card.value)) {
           if (player.secondChance) {
             player.secondChance = false;
-            // On défausse le doublon + on consomme la carte SECOND_CHANCE (retirée de l'affichage)
+            // On défausse le doublon + on consomme la carte SECOND_CHANCE
             const last = player.drawnCards[player.drawnCards.length - 1];
             if (last && last.type === CARD_TYPES.NUMBER && last.value === card.value) player.drawnCards.pop();
             const idx = [...player.drawnCards].reverse().findIndex(c => c.type === CARD_TYPES.SECOND_CHANCE);
@@ -179,7 +176,6 @@ export default class Round {
             console.log(`\n🎯 ${player.name} a fait FLIP 7 !`);
             console.log("Tous les joueurs actifs marquent leurs points !");
             
-            // Tous les joueurs actifs restent et marquent leurs points
             for (const p of this.players) {
               if (p.active) {
                 p.stayed = true;

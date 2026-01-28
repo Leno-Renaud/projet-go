@@ -14,7 +14,7 @@ export default class Deck {
       for (let i = 0; i < v; i++) this.cards.push(numberCard(v));
     }
 
-    // actions (quantités approximatives raisonnables)
+    // actions 
     for (let i = 0; i < 3; i++) this.cards.push({ type: CARD_TYPES.FREEZE });
     for (let i = 0; i < 3; i++) this.cards.push({ type: CARD_TYPES.FLIP_THREE });
     for (let i = 0; i < 3; i++) this.cards.push({ type: CARD_TYPES.SECOND_CHANCE });
