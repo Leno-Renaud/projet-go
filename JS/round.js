@@ -39,6 +39,7 @@ export default class Round {
         await this.drawCard(p);
         if (p.numbers.length === 7) {
           console.log(`${p.name} a fait FLIP 7 !`);
+          console.log(p.totalScore)
           finished = true;
           break;
         }
