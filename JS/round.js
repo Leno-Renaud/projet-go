@@ -176,50 +176,47 @@ export default class Round {
           player.addNumber(card.value);
 
           if (player.numbers.length === 7) {
-            player.stayed = true; // encaissement automatique
+            console.log(`\n🎯 ${player.name} a fait FLIP 7 !`);
+            console.log("Tous les joueurs actifs marquent leurs points !");
+            
+            // Tous les joueurs actifs restent et marquent leurs points
+            for (const p of this.players) {
+              if (p.active) {
+                p.stayed = true;
+              }
+            }
+            
             this.finished = true;
             this.flip7Player = player;
             this.logger.log({ type: "flip7", player: player.name });
-            console.log(`${player.name} a fait FLIP 7 !`);
           }
         }
         break;
       }
 
       case CARD_TYPES.FREEZE: {
-        // Carte jouée sur une cible: on ne l'affiche pas comme "gardée".
-        player.drawnCards.pop();
-
-        const targets = this.players.filter(p => p !== player && p.active && !p.stayed);
-        const target = await this.chooseTargetFromList(targets, "FREEZE");
-        if (!target) {
-          console.log("Aucun autre joueur actif à geler.");
-          break;
-        }
-
-        target.frozen = true;
-        target.active = false;
-        console.log(`${player.name} joue FREEZE sur ${target.name}`);
-        this.logger.log({ type: "freeze", from: player.name, to: target.name });
+        const frozenPlayer = await this.chooseTarget({
+          fromPlayer: player,
+          effectLabel: "FREEZE (finir le tour)",
+          allowSelf: true
+        });
+        
+        frozenPlayer.stayed = true;
+        console.log(`${frozenPlayer.name} finit son tour et marque ses points !`);
+        this.logger.log({ type: "freeze", player: player.name, targetPlayer: frozenPlayer.name });
         break;
       }
 
       case CARD_TYPES.FLIP_THREE: {
-        // Carte jouée sur une cible: on ne l'affiche pas comme "gardée".
-        player.drawnCards.pop();
-
-        const targets = this.players.filter(p => p !== player && p.active && !p.stayed);
-        const target = await this.chooseTargetFromList(targets, "FLIP3");
-        if (!target) {
-          console.log("Aucun autre joueur actif pour FLIP3.");
-          break;
-        }
-
-        console.log(`${player.name} joue FLIP3 sur ${target.name}`);
-        this.logger.log({ type: "flip_three", from: player.name, to: target.name });
-
+        const target = await this.chooseTarget({
+          fromPlayer: player,
+          effectLabel: "FLIP_THREE (3 cartes)",
+          allowSelf: true
+        });
+        
+        console.log(`${target.name} va recevoir 3 cartes...`);
         for (let i = 0; i < 3; i++) {
-          if (this.roundOver || this.finished || !target.active) break;
+          if (this.finished) break;
           await this.drawCard(target);
         }
         break;
