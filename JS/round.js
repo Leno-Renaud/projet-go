@@ -6,29 +6,36 @@ export default class Round {
     this.deck = deck;
     this.players = players;
     this.logger = logger;
+
+    // état du round
+    this.roundOver = false;
+    this.flip7Player = null;
   }
 
   async play(roundNumber) {
+    // reset état round
+    this.roundOver = false;
+    this.flip7Player = null;
+
     this.players.forEach(p => {
       p.resetRound();
-      // Historique des cartes piochées ce round
       p.drawnCards = [];
     });
+
     this.logger.startRound(roundNumber, this.players);
 
     // distribution initiale
     for (const p of this.players) {
       await this.drawCard(p);
+      if (this.roundOver) break;
     }
 
-    let finished = false;
-
-    while (!finished) {
+    while (!this.roundOver) {
       for (const p of this.players.filter(x => x.active && !x.stayed)) {
+        if (this.roundOver) break;
+
         console.log(`\n${p.name} a pioché:`, p.drawnCards.map(c => this.formatCard(c)).join(", "));
-        const choice = await ask(
-          `${p.name} → (p)iocher ou (s)rester ? `
-        );
+        const choice = await ask(`${p.name} → (p)iocher ou (s)rester ? `);
 
         if (choice === "s") {
           p.stayed = true;
@@ -37,24 +44,22 @@ export default class Round {
         }
 
         await this.drawCard(p);
-        if (p.numbers.length === 7) {
-          console.log(`${p.name} a fait FLIP 7 !`);
-          console.log(p.totalScore)
-          finished = true;
-          break;
-        }
+        if (this.roundOver) break;
       }
+
+      if (this.roundOver) break;
 
       const activeLeft = this.players.some(p => p.active && !p.stayed);
       if (!activeLeft) break;
     }
 
-    // scoring
-    for (const p of this.players) {
-      const score = p.scoreRound();
-      p.totalScore += score;
-      console.log(`${p.name} gagne ${score} (total ${p.totalScore})`);
+    if (this.flip7Player) {
+      console.log(`${this.flip7Player.name} a fait FLIP 7 !`);
+      this.logger.log({ type: "flip7", player: this.flip7Player.name });
     }
+
+    // scoring UNE SEULE FOIS, fin de round
+    this.scoreRound();
 
     this.logger.endRound(this.players);
   }
@@ -64,21 +69,31 @@ export default class Round {
     return card.value !== undefined ? `${card.type}(${card.value})` : `${card.type}`;
   }
 
+  scoreRound() {
+    for (const p of this.players) {
+      const score = p.scoreRound();
+      p.totalScore += score;
+
+      console.log(`${p.name} gagne ${score} (total ${p.totalScore})`);
+      this.logger.log({ type: "roundScore", player: p.name, score, totalScore: p.totalScore });
+    }
+  }
+
   async drawCard(player) {
+    if (this.roundOver) return;
+
     const card = this.deck.draw();
     this.logger.log({ type: "draw", player: player.name, card });
 
     if (!card) return;
 
-    // Stocke la carte dans l'historique du joueur
     if (!player.drawnCards) player.drawnCards = [];
     player.drawnCards.push(card);
 
-    // Affiche la carte tirée dans le terminal
     console.log(`${player.name} pioche: ${this.formatCard(card)}`);
 
     switch (card.type) {
-      case CARD_TYPES.NUMBER:
+      case CARD_TYPES.NUMBER: {
         if (player.hasDuplicate(card.value)) {
           if (player.secondChance) {
             player.secondChance = false;
@@ -87,10 +102,18 @@ export default class Round {
           }
           console.log("Doublon → éliminé !");
           player.active = false;
-        } else {
-          player.addNumber(card.value);
+          break;
+        }
+
+        player.addNumber(card.value);
+
+        // Déclenche FLIP7 immédiatement (important pour FLIP_THREE)
+        if (player.numbers.length === 7) {
+          this.roundOver = true;
+          this.flip7Player = player;
         }
         break;
+      }
 
       case CARD_TYPES.FREEZE:
         player.frozen = true;
@@ -99,6 +122,7 @@ export default class Round {
 
       case CARD_TYPES.FLIP_THREE:
         for (let i = 0; i < 3; i++) {
+          if (this.roundOver) break;
           await this.drawCard(player);
         }
         break;

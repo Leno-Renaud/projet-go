@@ -1,0 +1,238 @@
+{
+  "rounds": [
+    {
+      "round": 1,
+      "players": [
+        "pomme"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 8
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "freeze"
+          }
+        }
+      ],
+      "scores": {
+        "pomme": 0
+      }
+    },
+    {
+      "round": 2,
+      "players": [
+        "pomme"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 7
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 10
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 6
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 5
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 8
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        }
+      ],
+      "scores": {
+        "pomme": 0
+      }
+    },
+    {
+      "round": 3,
+      "players": [
+        "pomme"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "second_chance"
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 10
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 4
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 6
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 6
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "bonus",
+            "value": 5
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 10
+          }
+        }
+      ],
+      "scores": {
+        "pomme": 0
+      }
+    },
+    {
+      "round": 4,
+      "players": [
+        "pomme"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 4
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 6
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 9
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 7
+          }
+        },
+        {
+          "type": "draw",
+          "player": "pomme",
+          "card": {
+            "type": "number",
+            "value": 3
+          }
+        }
+      ],
+      "scores": {
+        "pomme": 0
+      }
+    }
+  ]
+}

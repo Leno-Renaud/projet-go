@@ -1,0 +1,97 @@
+{
+  "rounds": [
+    {
+      "round": 1,
+      "players": [
+        "p"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 7
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "freeze"
+          }
+        }
+      ],
+      "scores": {
+        "p": 0
+      }
+    },
+    {
+      "round": 2,
+      "players": [
+        "p"
+      ],
+      "events": [
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 3
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 9
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 8
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 12
+          }
+        },
+        {
+          "type": "draw",
+          "player": "p",
+          "card": {
+            "type": "number",
+            "value": 11
+          }
+        }
+      ],
+      "scores": {
+        "p": 0
+      }
+    }
+  ]
+}
