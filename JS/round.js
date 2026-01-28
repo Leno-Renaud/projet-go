@@ -7,7 +7,7 @@ export default class Round {
     this.players = players;
     this.logger = logger;
     this.finished = false;
-    this.flip7Winner = null;
+    this.flip7Player = null;
   }
 
   normalizeAction(raw) {
@@ -46,6 +46,26 @@ export default class Round {
     }
   }
 
+  async chooseTargetFromList(targets, label) {
+    if (!Array.isArray(targets) || targets.length === 0) return null;
+    if (targets.length === 1) return targets[0];
+
+    console.log(`Choisir une cible pour ${label}:`);
+    targets.forEach((p, i) => console.log(`  ${i + 1}) ${p.name}`));
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const raw = await ask("Cible (numéro ou nom) : ");
+      const byNum = Number(raw);
+      if (Number.isInteger(byNum) && byNum >= 1 && byNum <= targets.length) return targets[byNum - 1];
+
+      const byName = targets.find(p => p.name.toLowerCase() === String(raw).toLowerCase());
+      if (byName) return byName;
+
+      console.log("Entrée invalide.");
+    }
+  }
+
   async play(roundNumber) {
     // reset état round
     this.roundOver = false;
@@ -58,7 +78,7 @@ export default class Round {
 
     this.logger.startRound(roundNumber, this.players);
     this.finished = false;
-    this.flip7Winner = null;
+    this.flip7Player = null;
 
     // distribution initiale
     for (const p of this.players) {
@@ -95,10 +115,7 @@ export default class Round {
       if (!activeLeft) break;
     }
 
-    if (this.flip7Player) {
-      console.log(`${this.flip7Player.name} a fait FLIP 7 !`);
-      this.logger.log({ type: "flip7", player: this.flip7Player.name });
-    }
+    // flip7 est déjà loggé/affiché au moment où il arrive.
 
     // scoring UNE SEULE FOIS, fin de round
     this.scoreRound();
@@ -161,7 +178,7 @@ export default class Round {
           if (player.numbers.length === 7) {
             player.stayed = true; // encaissement automatique
             this.finished = true;
-            this.flip7Winner = player;
+            this.flip7Player = player;
             this.logger.log({ type: "flip7", player: player.name });
             console.log(`${player.name} a fait FLIP 7 !`);
           }
@@ -170,37 +187,43 @@ export default class Round {
       }
 
       case CARD_TYPES.FREEZE: {
-        const activePlayers = this.players.filter(p => p.active && p !== player);
-        
-        if (activePlayers.length === 0) {
-          console.log("Aucun autre joueur actif !");
+        // Carte jouée sur une cible: on ne l'affiche pas comme "gardée".
+        player.drawnCards.pop();
+
+        const targets = this.players.filter(p => p !== player && p.active && !p.stayed);
+        const target = await this.chooseTargetFromList(targets, "FREEZE");
+        if (!target) {
+          console.log("Aucun autre joueur actif à geler.");
           break;
         }
 
-        console.log("\nJoueurs actifs disponibles :");
-        activePlayers.forEach((p, index) => {
-          console.log(`${index + 1}. ${p.name}`);
-        });
-
-        let selectedIndex = -1;
-        while (selectedIndex < 0 || selectedIndex >= activePlayers.length) {
-          const input = await ask(`${player.name}, choisis un joueur (1-${activePlayers.length}) : `);
-          selectedIndex = parseInt(input) - 1;
-        }
-
-        const frozenPlayer = activePlayers[selectedIndex];
-        frozenPlayer.stayed = true;
-        console.log(`${frozenPlayer.name} finit son tour et marque ses points !`);
-        this.logger.log({ type: "freeze", player: player.name, targetPlayer: frozenPlayer.name });
+        target.frozen = true;
+        target.active = false;
+        console.log(`${player.name} joue FREEZE sur ${target.name}`);
+        this.logger.log({ type: "freeze", from: player.name, to: target.name });
         break;
       }
 
-      case CARD_TYPES.FLIP_THREE:
+      case CARD_TYPES.FLIP_THREE: {
+        // Carte jouée sur une cible: on ne l'affiche pas comme "gardée".
+        player.drawnCards.pop();
+
+        const targets = this.players.filter(p => p !== player && p.active && !p.stayed);
+        const target = await this.chooseTargetFromList(targets, "FLIP3");
+        if (!target) {
+          console.log("Aucun autre joueur actif pour FLIP3.");
+          break;
+        }
+
+        console.log(`${player.name} joue FLIP3 sur ${target.name}`);
+        this.logger.log({ type: "flip_three", from: player.name, to: target.name });
+
         for (let i = 0; i < 3; i++) {
-          if (this.roundOver) break;
-          await this.drawCard(player);
+          if (this.roundOver || this.finished || !target.active) break;
+          await this.drawCard(target);
         }
         break;
+      }
 
       case CARD_TYPES.SECOND_CHANCE:
         player.secondChance = true;
