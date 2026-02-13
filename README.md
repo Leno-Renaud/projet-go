@@ -10,40 +10,7 @@ It is designed as a portfolio showcase for a CV, with a focus on game logic, fun
 - **projet-go/GO/**: Go image-processing experiments (sequential vs parallel), plus client/server mode.
 - **Ressources/**: Visual assets used in this portfolio README.
 
-## 1) Flip 7 CLI – JavaScript
-
-### Project Summary
-`Flip 7 CLI` is a command-line implementation of a multiplayer card game.
-Players draw cards turn by turn, decide whether to continue or stop, manage action cards, and accumulate score until a winner reaches the target.
-
-### What this project demonstrates
-- Object-oriented game architecture (`Game`, `Round`, `Deck`, `Player`).
-- Turn-based game loop and player interaction in terminal.
-- Input validation and resilient CLI prompts.
-- Structured game logging in JSON for replay/analysis.
-
-### Setup & Run
-#### Prerequisites
-- Node.js 18+ (or newer LTS).
-- npm.
-
-#### Installation
-```bash
-cd JS
-npm install
-```
-
-#### Launch
-```bash
-npm start
-```
-
-#### Output
-- Runtime logs are saved under `JS/logs/`.
-
----
-
-## 2) Elm Wordle – Functional Frontend
+## 1) Elm Wordle – Functional Frontend
 
 ### Project Summary
 `Elm Wordle` is a browser-based clone of Wordle, implemented in Elm.
@@ -76,7 +43,7 @@ Open: `http://localhost:8000`
 
 ---
 
-## 3) Go Image Processing – Sequential vs Parallel
+## 2) Go Image Processing – Sequential vs Parallel
 
 ### Project Summary
 This Go project compares sequential and parallel implementations for image processing pipelines.
@@ -124,6 +91,39 @@ The client asks for:
 - Processing mode (BW / downscale / remap)
 
 Result image is saved in `projet-go/GO/client/output/out.jpg`.
+
+---
+
+## 3) Flip 7 CLI – JavaScript
+
+### Project Summary
+`Flip 7 CLI` is a command-line implementation of a multiplayer card game.
+Players draw cards turn by turn, decide whether to continue or stop, manage action cards, and accumulate score until a winner reaches the target.
+
+### What this project demonstrates
+- Object-oriented game architecture (`Game`, `Round`, `Deck`, `Player`).
+- Turn-based game loop and player interaction in terminal.
+- Input validation and resilient CLI prompts.
+- Structured game logging in JSON for replay/analysis.
+
+### Setup & Run
+#### Prerequisites
+- Node.js 18+ (or newer LTS).
+- npm.
+
+#### Installation
+```bash
+cd JS
+npm install
+```
+
+#### Launch
+```bash
+npm start
+```
+
+#### Output
+- Runtime logs are saved under `JS/logs/`.
 
 ---
 
