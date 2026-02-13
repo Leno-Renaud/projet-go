@@ -1,6 +1,6 @@
 # ELP Projects (Elm • Go • JavaScript)
 
-This repository groups several small projects built for the **ELP** course, across different languages:
+This repository groups several small projects, across different languages:
 
 - **Elm**: a Wordle clone (as a browser app)
 - **Go**: image-processing (sequential vs parallel using goroutines) + a TCP client/server demo, where a client sends images and the server executes the processing and returns the image
